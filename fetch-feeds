@@ -11,6 +11,17 @@ import urllib.request
 import os
 import re
 
+def sanitize_xml(content):
+	# Remove ANSI terminal escape sequences (e.g. colored build logs).
+	content = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', content)
+
+	# Remove characters forbidden by XML 1.0.
+	return re.sub(
+		r'[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFE\uFFFF]',
+		'',
+		content,
+	)
+
 default_output_dir = "build"
 
 prog_name = os.path.basename(m.__file__)
@@ -77,6 +88,5 @@ for feed_key in planet_hidden_config.keys():
 		p = re.compile("(?P<before><id>.*:/organizations/[^/]*)/[^/]*(?P<after></id>)")
 		feed_content = p.sub("\g<before>\g<after>", feed_content)
 
-	feed_file_handler = open(os.path.join(feed_dir, feed_key), "w")
-	feed_file_handler.write(feed_content)
-	feed_file_handler.close()
+	with open(os.path.join(feed_dir, feed_key), "w", encoding="utf-8") as f:
+		f.write(sanitize_xml(feed_content))
