@@ -2,6 +2,11 @@
 
 .PHONY: build css check page prepare update upgrade
 
+# Use the bundled REXML version to avoid entity-expansion errors with the
+# outdated system REXML, and use a Bundler version compatible with this setup.
+export RUBYOPT := -I$(CURDIR)/vendor/bundle/ruby/2.7.0/gems/rexml-3.4.4/lib
+BUNDLE := $(HOME)/.gem/ruby/2.7.0/bin/bundle _2.4.22_
+
 prepare:
 	bundle install --path vendor/bundle
 
